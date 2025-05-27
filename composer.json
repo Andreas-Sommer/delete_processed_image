@@ -1,0 +1,20 @@
+{
+  "name": "belsignum/delete-processed-image",
+  "type": "typo3-cms-extension",
+  "description": "This TYPO3 extension provides a backend tool to remove all processed (cropped, scaled, etc.) variants of a FAL image.\nIt adds a contextual “Delete Processed Files” button directly in the Filelist module, enabling editors and integrators to manually clear processed images for individual file references when needed.",
+  "keywords": ["TYPO3", "image", "processed", "fal", "cleanup"],
+  "license": "MIT",
+  "require": {
+    "typo3/cms-core": "^12.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Belsignum\\DeleteProcessedImage\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "delete_processed_image"
+    }
+  }
+}
