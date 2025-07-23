@@ -3,12 +3,13 @@
 namespace Belsignum\DeleteProcessedImage\Controller;
 
 use Belsignum\DeleteProcessedImage\Service\FileUsageCacheInvalidator;
-use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 readonly class DeleteProcessedFileController
 {
@@ -23,6 +24,9 @@ readonly class DeleteProcessedFileController
         $queryParams = $request->getQueryParams();
         $fileIdentifier = $queryParams['identifier'] ?? '';
 
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('sys_file_processedfile');
+
         try {
             /** @var File $fileObject */
             $fileObject = $this->resourceFactory->retrieveFileOrFolderObject($fileIdentifier);
@@ -30,15 +34,11 @@ readonly class DeleteProcessedFileController
                 $processedFiles = $this->processedFileRepository->findAllByOriginalFile($fileObject);
                 foreach ($processedFiles as $processedFile)
                 {
-                    // remove file from file system
-                    $publicUrl = $processedFile->getPublicUrl();
-                    $absolutePath = Environment::getPublicPath() . $publicUrl;
-                    if (is_file($absolutePath)) {
-                        unlink($absolutePath);
-                    }
-
-                    // remove file from DB
-                    $processedFile->delete();
+                    $processedFile->delete(true);
+                    $connection->delete(
+                        'sys_file_processedfile',
+                        ['uid' => $processedFile->getUid()]
+                    );
                 }
                 if(!empty($processedFiles))
                 {

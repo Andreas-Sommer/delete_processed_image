@@ -2,6 +2,7 @@
 
 namespace Belsignum\DeleteProcessedImage\Service;
 
+use Doctrine\DBAL\ParameterType;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\File;
@@ -31,7 +32,7 @@ final readonly class FileUsageCacheInvalidator
                 $queryBuilder->expr()->eq('sfr.uid_foreign', 'c.uid')
             )
             ->where(
-                $queryBuilder->expr()->eq('sfr.uid_local', $queryBuilder->createNamedParameter($fileUid, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('sfr.uid_local', $queryBuilder->createNamedParameter($fileUid, ParameterType::INTEGER)),
                 $queryBuilder->expr()->eq('sfr.tablenames', $queryBuilder->createNamedParameter('tt_content'))
             )
             ->groupBy('c.pid');
